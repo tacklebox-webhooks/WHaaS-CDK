@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 const cdk = require("@aws-cdk/core");
-const { AwsStack } = require("../lib/aws-stack");
+const { TackleboxStack } = require("../lib/aws-stack");
 
 const app = new cdk.App();
-new AwsStack(app, "AwsStack", {
+new TackleboxStack(app, "Tacklebox", {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */
