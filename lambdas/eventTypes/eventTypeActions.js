@@ -1,12 +1,12 @@
 const AWS = require("aws-sdk");
-AWS.config.update({ region: "us-east-1" });
+AWS.config.update({ region: process.env.AWS_REGION });
 const sns = new AWS.SNS({ apiVersion: "2010-03-31" });
 const cwlogs = new AWS.CloudWatchLogs({ apiVersion: "2014-03-28" });
 const lambda = new AWS.Lambda({ apiVersion: "2015-03-31" });
 const { db, queries } = require("./db");
 const { newResponse, uuidToId, isValidEventTypeName } = require("./utils");
 
-const createEventType = async (name, serviceUuid) => {
+const createEventType = async (name, serviceUuid, accountId) => {
   if (!name) {
     return newResponse(400, {
       error_type: "missing_parameter",
@@ -22,11 +22,10 @@ const createEventType = async (name, serviceUuid) => {
 
   const serviceId = await uuidToId("services", serviceUuid);
   const snsTopicName = `CaptainHook_${serviceUuid}_${name}`;
-  const HTTPSuccessFeedbackRoleArn =
-    "arn:aws:iam::946221510390:role/SNSSuccessFeedback";
-  const HTTPFailureFeedbackRoleArn =
-    "arn:aws:iam::946221510390:role/SNSFailureFeedback";
+  const HTTPSuccessFeedbackRoleArn = `arn:aws:iam::${accountId}:role/SNSSuccessFeedback`;
+  const HTTPFailureFeedbackRoleArn = `arn:aws:iam::${accountId}:role/SNSFailureFeedback`;
   const HTTPSuccessFeedbackSampleRate = "100";
+
   const DeliveryPolicy = {
     http: {
       defaultHealthyRetryPolicy: {
@@ -64,12 +63,12 @@ const createEventType = async (name, serviceUuid) => {
     console.error(error);
   }
 
-  const region = "us-east-1";
-  const accountId = "946221510390";
-  const logGroupName = `sns/${region}/${accountId}/${snsTopicName}`;
+  const REGION = process.env.AWS_REGION;
+  const logGroupName = `sns/${REGION}/${accountId}/${snsTopicName}`;
   const logGroupNameFailure = `${logGroupName}/Failure`;
-  const destinationArn = `arn:aws:lambda:${region}:${accountId}:function:CaptainHook_LogMessages`;
-
+  // Function name needs to match actual generated name
+  const destinationArn = process.env.DESTINATION_ARN;
+  const logMessagesFunctionName = process.env.DESTINATION_NAME;
   // Create "success" log group, add permissions and lambda trigger
   try {
     await cwlogs.createLogGroup({ logGroupName: logGroupName }).promise();
@@ -77,9 +76,9 @@ const createEventType = async (name, serviceUuid) => {
     // Add permissions to logMessage lambda
     const lambdaParams = {
       Action: "lambda:InvokeFunction",
-      FunctionName: "CaptainHook_LogMessages",
-      Principal: `logs.${region}.amazonaws.com`,
-      SourceArn: `arn:aws:logs:${region}:${accountId}:log-group:${logGroupName}:*`,
+      FunctionName: logMessagesFunctionName,
+      Principal: `logs.${REGION}.amazonaws.com`,
+      SourceArn: `arn:aws:logs:${REGION}:${accountId}:log-group:${logGroupName}:*`,
       StatementId: `${snsTopicName}SuccessTrigger`,
     };
 
@@ -112,9 +111,9 @@ const createEventType = async (name, serviceUuid) => {
       .promise();
     const lambdaParams = {
       Action: "lambda:InvokeFunction",
-      FunctionName: "CaptainHook_LogMessages",
-      Principal: `logs.${region}.amazonaws.com`,
-      SourceArn: `arn:aws:logs:${region}:${accountId}:log-group:${logGroupNameFailure}:*`,
+      FunctionName: logMessagesFunctionName,
+      Principal: `logs.${REGION}.amazonaws.com`,
+      SourceArn: `arn:aws:logs:${REGION}:${accountId}:log-group:${logGroupNameFailure}:*`,
       StatementId: `${snsTopicName}FailureTrigger`,
     };
 

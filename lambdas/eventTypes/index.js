@@ -35,7 +35,11 @@ exports.handler = async (event) => {
   } else {
     switch (httpMethod) {
       case "POST":
-        return await createEventType(body.name, serviceUuid);
+        return await createEventType(
+          body.name,
+          serviceUuid,
+          event.requestContext.accountId
+        );
       case "GET":
         return await listEventTypes(serviceUuid);
     }
