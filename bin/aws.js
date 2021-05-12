@@ -5,4 +5,3 @@ const { TackleboxStack, WebsiteStack } = require("../lib/aws-stack");
 
 const app = new cdk.App();
 new TackleboxStack(app, "Tacklebox");
-new WebsiteStack(app, "Website");
