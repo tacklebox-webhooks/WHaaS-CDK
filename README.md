@@ -16,12 +16,6 @@ If you run into difficulties, you might have to run the following commands:
 - `npm install -g aws-cdk`: this install the CLI for using the Cloud Development Kit globally on your system.
 - `cdk bootstrap`: this might be needed to bundle up the lambda with its dependencies. You can run the command from the root directory if needed (you'll be instructed to do so if there's an issue).
 
-## Notes and Issues still needing to be addressed
-
-- The `aws-stack.js` file in the `lib` folder is where all the stack creation code is.
-- Started testing Create event type and got the following error:
-
-`2021-05-09T22:57:45.703Z 55899f5b-81d9-4e55-b8d9-e3dea1a059d4 ERROR Error [AuthorizationError]: Cross-account pass role is not allowed. at Request.extractError (/var/runtime/node_modules/aws-sdk/lib/protocol/query.js:50:29) at Request.callListeners (/var/runtime/node_modules/aws-sdk/lib/sequential_executor.js:106:20) at Request.emit (/var/runtime/node_modules/aws-sdk/lib/sequential_executor.js:78:10) at Request.emit (/var/runtime/node_modules/aws-sdk/lib/request.js:688:14) at Request.transition (/var/runtime/node_modules/aws-sdk/lib/request.js:22:10) at AcceptorStateMachine.runTo (/var/runtime/node_modules/aws-sdk/lib/state_machine.js:14:12) at /var/runtime/node_modules/aws-sdk/lib/state_machine.js:26:10 at Request.<anonymous> (/var/runtime/node_modules/aws-sdk/lib/request.js:38:9) at Request.<anonymous> (/var/runtime/node_modules/aws-sdk/lib/request.js:690:12) at Request.callListeners (/var/runtime/node_modules/aws-sdk/lib/sequential_executor.js:116:18) { code: 'AuthorizationError', time: 2021-05-09T22:57:45.642Z, requestId: '9e891bee-6d2d-54aa-a291-42fc0604aa20', statusCode: 403, retryable: false, retryDelay: 28.78525630400468 }`
 
 ## Useful commands
 
